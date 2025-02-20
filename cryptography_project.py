@@ -112,6 +112,7 @@ if __name__ == "__main__":
     plaintext = "SECRETMESSAGE"
     playfair_key = "MYKEY"
     rail_fence_depth = 4
+    secret_key = b'Sixteen byte key'
 
     # Playfair Cipher
     playfair_ciphertext, pf_enc_time = measure_time(playfair_cipher, plaintext, playfair_key, "encrypt")
@@ -123,19 +124,29 @@ if __name__ == "__main__":
 
     # AES + RSA
     rsa_private, rsa_public = generate_rsa_keys()
-    secret_key = b'Sixteen byte key'
+    
     encrypted_key, rsa_enc_time = measure_time(rsa_encrypt, secret_key, rsa_public)
     decrypted_key, rsa_dec_time = measure_time(rsa_decrypt, encrypted_key, rsa_private)
-
     aes_ciphertext, aes_enc_time = measure_time(aes_encrypt, plaintext, secret_key)
     decrypted_text, aes_dec_time = measure_time(aes_decrypt, aes_ciphertext, secret_key)
 
     # OUTPUT RESULTS WITH TIME MEASUREMENTS
-    print(f"Playfair Ciphertext: {playfair_ciphertext} | Time: {pf_enc_time:.6f}s")
-    print(f"Decrypted Playfair Text: {decrypted_playfair_text} | Time: {pf_dec_time:.6f}s")
-    print(f"Rail Fence Ciphertext: {rail_fence_ciphertext} | Time: {rf_enc_time:.6f}s")
-    print(f"Decrypted Rail Fence Text: {decrypted_rail_fence} | Time: {rf_dec_time:.6f}s")
-    print(f"AES Ciphertext: {aes_ciphertext} | Time: {aes_enc_time:.6f}s")
-    print(f"Decrypted AES Text: {decrypted_text} | Time: {aes_dec_time:.6f}s")
-    print(f"RSA Encrypted Key: {encrypted_key[:30]}... | Time: {rsa_enc_time:.6f}s")
-    print(f"RSA Decrypted Key: {decrypted_key} | Time: {rsa_dec_time:.6f}s")
+    
+    print(f"Original Plaintext:", plaintext)
+    print(f"Playfair Key:", playfair_key)
+    print(f"Rail Fence Depth:", rail_fence_depth)
+    print(f"AES Secret Key:", secret_key)
+    
+    print("\n===== Product Classical Symmetric Ciphers =====")
+    print(f"Playfair Ciphertext: {playfair_ciphertext} (Time: {pf_enc_time:.6f}s)")
+    print(f"Decrypted Playfair Text: {decrypted_playfair_text} (Time: {pf_dec_time:.6f}s)")
+    print(f"Rail Fence Ciphertext: {rail_fence_ciphertext} (Time: {rf_enc_time:.6f}s)")
+    print(f"Decrypted Rail Fence Text: {decrypted_rail_fence} (Time: {rf_dec_time:.6f}s)")
+
+    print("\n===== Hybrid Modern Asymmetric & Symmetric Ciphers =====")
+    print(f"AES Ciphertext: {aes_ciphertext} (Time: {aes_enc_time:.6f}s)")
+    print(f"Decrypted AES Text: {decrypted_text} (Time: {aes_dec_time:.6f}s)")
+    print(f"RSA Encrypted Key: {encrypted_key[:30]}... (Time: {rsa_enc_time:.6f}s)")
+    print(f"RSA Decrypted Key: {decrypted_key} (Time: {rsa_dec_time:.6f}s)")
+
+
