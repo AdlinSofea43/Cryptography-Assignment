@@ -57,21 +57,42 @@ def playfair_cipher(text, key, mode="encrypt"):
 
     return result if mode == "encrypt" else result.replace("X", "")
 
-# ----- RAIL FENCE CIPHER -----
-def rail_fence_encrypt(plaintext, depth):
-    fence = [[] for _ in range(depth)]
+# ----- RAIL FENCE CIPHER (Fixed Decryption) -----
+def rail_fence_encrypt(text, depth):
+    """Encrypts the plaintext using the Rail Fence Cipher."""
+    if depth == 1:
+        return text  # No encryption needed for depth 1
+
+    fence = [''] * depth
     rails = cycle(list(range(depth)) + list(range(depth-2, 0, -1)))
-    for c in plaintext:
-        fence[next(rails)].append(c)
-    return ''.join(''.join(row) for row in fence)
+
+    for char in text:
+        fence[next(rails)] += char
+
+    return ''.join(fence)
+
 
 def rail_fence_decrypt(ciphertext, depth):
-    fence = [[] for _ in range(depth)]
+    """Decrypts the Rail Fence Cipher properly by reconstructing the zigzag pattern."""
+    if depth == 1:
+        return ciphertext  # No decryption needed for depth 1
+
+    length = len(ciphertext)
+    rail_positions = [[] for _ in range(depth)]
     rails = cycle(list(range(depth)) + list(range(depth-2, 0, -1)))
-    order = sorted(range(len(ciphertext)), key=lambda x: next(rails))
-    for i, c in zip(order, ciphertext):
-        fence[i % depth].append(c)
-    return ''.join(''.join(row) for row in zip(*fence))
+    pattern = [next(rails) for _ in range(length)]
+
+    # Step 1: Allocate spaces in the zigzag pattern
+    indexes = sorted(range(length), key=lambda i: pattern[i])
+    sorted_text = sorted(zip(indexes, ciphertext), key=lambda x: x[0])
+
+    # Step 2: Reconstruct the original text
+    rails = cycle(list(range(depth)) + list(range(depth-2, 0, -1)))
+    result = [''] * length
+    for i, char in enumerate(sorted_text):
+        result[i] = char[1]
+
+    return ''.join(result)
 
 # ----- AES ENCRYPTION -----
 def aes_encrypt(plaintext, key):
@@ -102,11 +123,10 @@ def rsa_decrypt(ciphertext, private_key):
     return cipher.decrypt(base64.b64decode(ciphertext)).decode()
 
 # ----- MEASURE EXECUTION TIME -----
-def measure_time(func, *args, **kwargs):
-    start = time.perf_counter()  # Higher precision timing
-    result = func(*args, **kwargs)
-    elapsed_time = time.perf_counter() - start
-    return result, elapsed_time
+def measure_time(func, *args):
+    start = time.time()
+    result = func(*args)
+    return result, time.time() - start
 
 # ----- TESTING IMPLEMENTATION -----
 if __name__ == "__main__":
@@ -132,22 +152,20 @@ if __name__ == "__main__":
     decrypted_text, aes_dec_time = measure_time(aes_decrypt, aes_ciphertext, secret_key)
 
     # OUTPUT RESULTS WITH TIME MEASUREMENTS
-    
-    print(f"Original Plaintext:", plaintext)
-    print(f"Playfair Key:", playfair_key)
-    print(f"Rail Fence Depth:", rail_fence_depth)
-    print(f"AES Secret Key:", secret_key)
-    
+    print(f"Original Plaintext: {plaintext}")
+    print(f"Playfair Key: {playfair_key}")
+    print(f"Rail Fence Depth: {rail_fence_depth}")
+    print(f"AES Secret Key: {secret_key}")
+
     print("\n===== Product Classical Symmetric Ciphers =====")
     print(f"Playfair Ciphertext: {playfair_ciphertext} (Time: {pf_enc_time:.6f}s)")
-    print(f"Decrypted Playfair Text: {decrypted_playfair_text} (Time: {pf_dec_time:.6f}s)")
     print(f"Rail Fence Ciphertext: {rail_fence_ciphertext} (Time: {rf_enc_time:.6f}s)")
-    print(f"Decrypted Rail Fence Text: {decrypted_rail_fence} (Time: {rf_dec_time:.6f}s)")
+    print(f"Decrypted Rail Fence (Playfair Ciphertext): {decrypted_rail_fence} (Time: {rf_dec_time:.6f}s)")
+    print(f"Decrypted Playfair Text: {decrypted_playfair_text} (Time: {pf_dec_time:.6f}s)")
+    
 
     print("\n===== Hybrid Modern Asymmetric & Symmetric Ciphers =====")
     print(f"AES Ciphertext: {aes_ciphertext} (Time: {aes_enc_time:.6f}s)")
     print(f"Decrypted AES Text: {decrypted_text} (Time: {aes_dec_time:.6f}s)")
     print(f"RSA Encrypted Key: {encrypted_key[:30]}... (Time: {rsa_enc_time:.6f}s)")
     print(f"RSA Decrypted Key: {decrypted_key} (Time: {rsa_dec_time:.6f}s)")
-
-
