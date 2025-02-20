@@ -102,10 +102,11 @@ def rsa_decrypt(ciphertext, private_key):
     return cipher.decrypt(base64.b64decode(ciphertext)).decode()
 
 # ----- MEASURE EXECUTION TIME -----
-def measure_time(func, *args):
-    start = time.time()
-    result = func(*args)
-    return result, time.time() - start
+def measure_time(func, *args, **kwargs):
+    start = time.perf_counter()  # Higher precision timing
+    result = func(*args, **kwargs)
+    elapsed_time = time.perf_counter() - start
+    return result, elapsed_time
 
 # ----- TESTING IMPLEMENTATION -----
 if __name__ == "__main__":
