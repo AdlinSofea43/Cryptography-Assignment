@@ -19,4 +19,11 @@ Ensure you have the following dependencies installed before running the script:
 
 ```sh
 pip install pycryptodome numpy
+```
 
+## Usage
+Run the script using:
+
+```sh
+python cryptography_project.py
+```
